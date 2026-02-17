@@ -78,7 +78,7 @@
         try {
             answer = eval(sanitizedProblem)
         } catch (error) {
-            answer = '<eval error>'
+            answer = '<error>'
         }
         return `${sanitizedProblem} = ${answer}`
     }
