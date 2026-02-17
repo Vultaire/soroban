@@ -76,7 +76,7 @@
     }
 
     function resetVoice() {
-        if (selectedLanguage) {
+        if (selectedLanguage && Object.hasOwn(byLanguage, selectedLanguage) && byLanguage[selectedLanguage].length > 0) {
             if (selectedVoice === undefined) {
                 console.log('reset voice: voice undefined; selecting default for selected language')
             } else if (byLanguage[selectedLanguage].indexOf(selectedVoice) === -1) {
