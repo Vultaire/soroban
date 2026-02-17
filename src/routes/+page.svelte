@@ -26,7 +26,14 @@
     let selectedVoice: SpeechSynthesisVoice | undefined = $state()
     let selectedRate: number = $state(100)
     let problems: ProblemState[] = $state(problemsFromParam)
-    let allAnswersVisible = false;
+
+    let modeParam = page.url.searchParams.get('mode')
+    if (modeParam != 'edit' && modeParam != 'practice') {
+        modeParam = 'edit'
+    }
+    let mode: string = $state(modeParam)
+
+    let allAnswersVisible: boolean = $state(false);
 
     /* Add a problem...  Currently jush pushes empty strings to generate more objects.
        I don't think this really handles state from the children yet, nor am I sure I really need that. */
@@ -45,6 +52,13 @@
 
     function onRateChanged(rate: number) {
         selectedRate = rate
+    }
+
+    function onModeChange() {
+        // Update the URL parameters to match the current problems
+        const newURL = page.url
+        newURL.searchParams.set('mode', mode)
+        goto(newURL, {keepFocus: true})
     }
 
     function onProblemChange() {
@@ -107,7 +121,13 @@
 Title for this page: <input bind:value={title} oninput={onTitleChanged} />
 <VoiceSelector {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
 <hr />
+<input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">Edit mode</label>
+<input type="radio" name="mode" bind:group={mode} id="practice" value="practice" autocomplete="off" onchange={onModeChange} /><label for="practice">Practice mode</label>
+{#if mode == 'edit'}
 <p>Input problems one-by-one, using numbers and +/-, e.g. <span class="mono">123+45-67</span>.  (No commas yet.  No multiplication/division yet.)</p>
+{:else}
+<p>Play back the problems, solve them (soroban or anzan), then check your answers.</p>
+{/if}
 <!-- being lazy; not wanting to remember CSS grid layout stuff tonight -->
 <table>
     <tbody>
@@ -121,6 +141,7 @@ Title for this page: <input bind:value={title} oninput={onTitleChanged} />
                         selectedLanguage={selectedLanguage}
                         selectedVoice={selectedVoice}
                         selectedRate={selectedRate}
+                        {mode}
                         {onProblemChange}
                         onEnter={() => {onProblemEnter(i)}}
                         />
@@ -129,7 +150,10 @@ Title for this page: <input bind:value={title} oninput={onTitleChanged} />
         {/each}
     </tbody>
 </table>
+{#if mode == 'edit'}
 <button onclick={addProblem}>Add problem</button>
-<button onclick={showAllAnswers}>{#if allAnswersVisible}Hide{:else}Show{/if} all answers</button>
 <button onclick={clearAllProblems}>Clear all problems</button>
+{:else}
+<button onclick={showAllAnswers}>{#if allAnswersVisible}Hide{:else}Show{/if} all answers</button>
+{/if}
 <!-- to do (maybe): Add an option to break the playback up into tokens, with an optional delay between the tokens.  (I may need this...  or maybe the rate is enough?) -->

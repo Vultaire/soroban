@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    let { problem = $bindable(), showAnswer = $bindable(), selectedLanguage, selectedVoice, selectedRate, onProblemChange, onEnter } = $props();
+    let { problem = $bindable(), showAnswer = $bindable(), mode, selectedLanguage, selectedVoice, selectedRate, onProblemChange, onEnter } = $props();
 
     let lastProblemValue = null;
 
@@ -15,19 +15,14 @@
         },
     }
 
+    // "Speak all" handler
     function onSpeakClicked(phrase: string) {
         if (!selectedVoice) {
             console.error('onSpeakClicked: unexpected unset selected voice')
             return
         }
 
-        let output = tokenize(phrase).map(token => {
-            let langSubs = substitutions[selectedLanguage] || {}
-            if (token in langSubs) {
-                token = langSubs[token]
-            }
-            return token
-        }).join(" ")
+        let output = sanitize(phrase)
 
         const utterance = new SpeechSynthesisUtterance(output)
         //const utterance = new SpeechSynthesisUtterance(phrase)
@@ -37,11 +32,25 @@
         window.speechSynthesis.speak(utterance)
     }
 
-    function tokenize(problem: string): string[] {
+    function tokenSanitize(problem: string): string[] {
         /* Very simple: match on numbers (multidigit) and operators (singular).  Commas not (yet) supported. */
         const re = /(\d+|[\+\-])/g
         return Array.from(problem.matchAll(re)).map(match => {
             return match[1]
+        })
+    }
+
+    function sanitize(rawProblem: string): string {
+        return substituteTokens(tokenSanitize(rawProblem)).join(" ")
+    }
+
+    function substituteTokens(tokens: string[]): string[] {
+        return tokens.map(token => {
+            let langSubs = substitutions[selectedLanguage] || {}
+            if (token in langSubs) {
+                token = langSubs[token]
+            }
+            return token
         })
     }
 
@@ -71,12 +80,15 @@
 </style>
 
 <div>
+    {#if mode=="edit"}
     <input class="problem-simple" bind:value={problem} type="text" oninput={onProblemInnerChange} {onkeyup} />
+    {:else}
     {#if selectedVoice}
     <button onclick={() => onSpeakClicked(problem)}>Speak</button>
     {/if}
     <button onclick={() => {showAnswer = !showAnswer}}>{#if showAnswer}Hide{:else}Show{/if} answer</button>
     {#if showAnswer}
-    <span class="answer">Answer: {eval(problem)}</span>
+    <span class="answer">{sanitize(problem)} = {eval(sanitize(problem))}</span>
+    {/if}
     {/if}
 </div>
