@@ -36,6 +36,8 @@
     let allAnswersVisible: boolean = $state(false);
 
     let ja: boolean = $derived(selectedLanguage == 'ja-JP')
+    // For Japanese display: allow for displaying with and without kanji (the latter being more kid friendly)
+    let kanji: boolean = $state(true)
 
     /* Add a problem...  Currently jush pushes empty strings to generate more objects.
        I don't think this really handles state from the children yet, nor am I sure I really need that. */
@@ -125,7 +127,7 @@
 </svelte:head>
 
 {#if ja}ページのタイトル：{:else}Title for this page: {/if}<input bind:value={title} oninput={onTitleChanged} />
-<VoiceSelector bind:selectedLanguage {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
+<VoiceSelector bind:selectedLanguage bind:kanji {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
 <hr />
 <input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">{#if ja}へんしゅうモード{:else}Edit mode{/if}</label>
 <input type="radio" name="mode" bind:group={mode} id="practice" value="practice" autocomplete="off" onchange={onModeChange} /><label for="practice">{#if ja}れんしゅうモード{:else}Practice mode{/if}</label>
@@ -152,9 +154,10 @@
                     <ProblemSimple
                         bind:problem={problems[i].problem}
                         bind:showAnswer={problems[i].showAnswer}
-                        selectedLanguage={selectedLanguage}
-                        selectedVoice={selectedVoice}
-                        selectedRate={selectedRate}
+                        {selectedLanguage}
+                        {kanji}
+                        {selectedVoice}
+                        {selectedRate}
                         {mode}
                         {onProblemChange}
                         onEnter={() => {onProblemEnter(i)}}
@@ -165,9 +168,9 @@
     </tbody>
 </table>
 {#if mode == 'edit'}
-<button onclick={addProblem}>{#if ja}もんだいをついかする{:else}Add problem{/if}</button>
-<button onclick={clearAllProblems}>{#if ja}もんだいをぜんぶけす{:else}Clear all problems{/if}</button>
+<button onclick={addProblem}>{#if ja && kanji}問題を追加する{:else if ja}もんだいをついかする{:else}Add problem{/if}</button>
+<button onclick={clearAllProblems}>{#if ja && kanji}問題を全部消す{:else if ja}もんだいをぜんぶけす{:else}Clear all problems{/if}</button>
 {:else}
-<button onclick={showAllAnswers}>{#if ja}こたえをぜんぶ{#if allAnswersVisible}かくす{:else}みせる{/if}{:else}{#if allAnswersVisible}Hide{:else}Show{/if} all answers{/if}</button>
+<button onclick={showAllAnswers}>{#if ja && kanji}答えを全部{#if allAnswersVisible}隠す{:else}見せる{/if}{:else if ja}こたえをぜんぶ{#if allAnswersVisible}かくす{:else}みせる{/if}{:else}{#if allAnswersVisible}Hide{:else}Show{/if} all answers{/if}</button>
 {/if}
 <!-- to do (maybe): Add an option to break the playback up into tokens, with an optional delay between the tokens.  (I may need this...  or maybe the rate is enough?) -->

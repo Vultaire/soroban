@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    let { problem = $bindable(), showAnswer = $bindable(), mode, selectedLanguage, selectedVoice, selectedRate, onProblemChange, onEnter } = $props();
+    let { problem = $bindable(), showAnswer = $bindable(), mode, selectedLanguage, kanji, selectedVoice, selectedRate, onProblemChange, onEnter } = $props();
 
     let lastProblemValue = null;
 
@@ -101,9 +101,9 @@
     <input class="problem-simple" bind:value={problem} type="text" oninput={onProblemInnerChange} {onkeyup} />
     {:else}
     {#if selectedVoice}
-    <button onclick={() => onListenClicked(problem)}>{#if ja}きく{:else}Listen{/if}</button>
+    <button onclick={() => onListenClicked(problem)}>{#if ja && kanji}聞く{:else if ja}きく{:else}Listen{/if}</button>
     {/if}
-    <button onclick={() => {showAnswer = !showAnswer}}>{#if ja}こたえを{#if showAnswer}かくす{:else}みせる{/if}{:else}{#if showAnswer}Hide{:else}Show{/if} answer{/if}</button>
+    <button onclick={() => {showAnswer = !showAnswer}}>{#if ja && kanji}答えを{#if showAnswer}隠す{:else}見せる{/if}{:else if ja}こたえを{#if showAnswer}かくす{:else}みせる{/if}{:else}{#if showAnswer}Hide{:else}Show{/if} answer{/if}</button>
     {#if showAnswer}
     <span class="answer">{getProblemWithAnswer(problem)}</span>
     {/if}

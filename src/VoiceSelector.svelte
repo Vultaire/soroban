@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    let { selectedLanguage = $bindable(), onLanguageChanged, onVoiceChanged, onRateChanged } = $props();
+    let { selectedLanguage = $bindable(), kanji = $bindable(), onLanguageChanged, onVoiceChanged, onRateChanged } = $props();
 
     let byLanguage: Record<string, SpeechSynthesisVoice[]> = $state({});
 
@@ -114,14 +114,14 @@
 
 <p>
     {#if Object.keys(byLanguage).length === 0}
-        {#if ja}こえをロードちゅう...{:else}Loading voices...{/if}
+        {#if ja && kanji}声をロード中...{:else if ja}こえをロードちゅう...{:else}Loading voices...{/if}
     {:else}
-        {#if ja}げんご：{:else}Language: {/if}<select bind:value={selectedLanguage} onchange={internalOnLanguageChanged}>
+        {#if ja && kanji}言語：{:else if ja}げんご：{:else}Language: {/if}<select bind:value={selectedLanguage} onchange={internalOnLanguageChanged}>
             {#each Object.keys(byLanguage).sort() as language}
                 <option value="{language}">{getFriendlyLanguageName(language)}</option>
             {/each}
         </select>
-        {#if ja}こえ：{:else}Voice: {/if}<select bind:value={selectedVoice} onchange={internalOnVoiceChanged}>
+        {#if ja && kanji}声：{:else if ja}こえ：{:else}Voice: {/if}<select bind:value={selectedVoice} onchange={internalOnVoiceChanged}>
             {#if (typeof selectedLanguage) == "string"}
                 {#each byLanguage[selectedLanguage] as voice}
                     <option value={voice}>{voice.name}</option>
@@ -129,5 +129,9 @@
             {/if}
         </select>
         {#if ja}スピード（パーセント）：{:else}Speed (percentage): {/if}<input bind:value={ratePct} onchange={internalOnRateChanged} type="range" min="10" max="300" /> {ratePct}%
+    {/if}
+    {#if ja}
+    <br />
+    <input id="kanji" type="checkbox" bind:checked={kanji}><label for="kanji">{#if kanji}漢字を使う{:else}かんじをつかう{/if}</label>
     {/if}
 </p>
