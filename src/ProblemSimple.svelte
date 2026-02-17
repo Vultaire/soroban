@@ -5,6 +5,8 @@
 
     let lastProblemValue = null;
 
+    let ja: boolean = $derived(selectedLanguage == 'ja-JP')
+
     const substitutions = {
         "en-US": {
             "-": "minus",
@@ -16,9 +18,9 @@
     }
 
     // "Speak all" handler
-    function onSpeakClicked(phrase: string) {
+    function onListenClicked(phrase: string) {
         if (!selectedVoice) {
-            console.error('onSpeakClicked: unexpected unset selected voice')
+            console.error('onListenClicked: unexpected unset selected voice')
             return
         }
 
@@ -99,9 +101,9 @@
     <input class="problem-simple" bind:value={problem} type="text" oninput={onProblemInnerChange} {onkeyup} />
     {:else}
     {#if selectedVoice}
-    <button onclick={() => onSpeakClicked(problem)}>Speak</button>
+    <button onclick={() => onListenClicked(problem)}>{#if ja}きく{:else}Listen{/if}</button>
     {/if}
-    <button onclick={() => {showAnswer = !showAnswer}}>{#if showAnswer}Hide{:else}Show{/if} answer</button>
+    <button onclick={() => {showAnswer = !showAnswer}}>{#if ja}こたえを{#if showAnswer}かくす{:else}みせる{/if}{:else}{#if showAnswer}Hide{:else}Show{/if} answer{/if}</button>
     {#if showAnswer}
     <span class="answer">{getProblemWithAnswer(problem)}</span>
     {/if}

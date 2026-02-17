@@ -35,6 +35,8 @@
 
     let allAnswersVisible: boolean = $state(false);
 
+    let ja: boolean = $derived(selectedLanguage == 'ja-JP')
+
     /* Add a problem...  Currently jush pushes empty strings to generate more objects.
        I don't think this really handles state from the children yet, nor am I sure I really need that. */
     function addProblem() {
@@ -119,18 +121,26 @@
 </style>
 
 <svelte:head>
-    <title>{title ? title : "Soroban reader"}</title>
+    <title>{title ? title : (ja ? "そろばん：よみあげざんツール" : "Soroban reader")}</title>
 </svelte:head>
 
-Title for this page: <input bind:value={title} oninput={onTitleChanged} />
+{#if ja}ページのタイトル：{:else}Title for this page: {/if}<input bind:value={title} oninput={onTitleChanged} />
 <VoiceSelector bind:selectedLanguage {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
 <hr />
-<input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">Edit mode</label>
-<input type="radio" name="mode" bind:group={mode} id="practice" value="practice" autocomplete="off" onchange={onModeChange} /><label for="practice">Practice mode</label>
+<input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">{#if ja}へんしゅうモード{:else}Edit mode{/if}</label>
+<input type="radio" name="mode" bind:group={mode} id="practice" value="practice" autocomplete="off" onchange={onModeChange} /><label for="practice">{#if ja}れんしゅうモード{:else}Practice mode{/if}</label>
 {#if mode == 'edit'}
-<p>Input problems one-by-one, using numbers and +/-, e.g. <span class="mono">123+45-67</span>.  (No commas yet.  No multiplication/division yet.)</p>
+  {#if ja}
+  <p>もんだいをいっこずつきにゅうしてください。はんかくのすうじ、「+」、「-」はだいじょうぶです。たとえば：<span class="mono">123+45-67</span></p>
+  {:else}
+  <p>Input problems one-by-one, using numbers and +/-, e.g. <span class="mono">123+45-67</span>.  (No commas yet.  No multiplication/division yet.)</p>
+  {/if}
 {:else}
-<p>Play back the problems, solve them (soroban or anzan), then check your answers.</p>
+  {#if ja}
+  <p>もんだいをさいせいして、かいとうして（そろばんでも、あんざんでも）、そしてこたえをかくにんしてください。</p>
+  {:else}
+  <p>Play back the problems, solve them (soroban or anzan), then check your answers.</p>
+  {/if}
 {/if}
 <!-- being lazy; not wanting to remember CSS grid layout stuff tonight -->
 <table>
@@ -155,9 +165,9 @@ Title for this page: <input bind:value={title} oninput={onTitleChanged} />
     </tbody>
 </table>
 {#if mode == 'edit'}
-<button onclick={addProblem}>Add problem</button>
-<button onclick={clearAllProblems}>Clear all problems</button>
+<button onclick={addProblem}>{#if ja}もんだいをついかする{:else}Add problem{/if}</button>
+<button onclick={clearAllProblems}>{#if ja}もんだいをぜんぶけす{:else}Clear all problems{/if}</button>
 {:else}
-<button onclick={showAllAnswers}>{#if allAnswersVisible}Hide{:else}Show{/if} all answers</button>
+<button onclick={showAllAnswers}>{#if ja}こたえをぜんぶ{#if allAnswersVisible}かくす{:else}みせる{/if}{:else}{#if allAnswersVisible}Hide{:else}Show{/if} all answers{/if}</button>
 {/if}
 <!-- to do (maybe): Add an option to break the playback up into tokens, with an optional delay between the tokens.  (I may need this...  or maybe the rate is enough?) -->

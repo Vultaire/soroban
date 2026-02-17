@@ -12,6 +12,8 @@
     let lastRate: number = 100
     let ratePct: number = $state(lastRate)
 
+    let ja: boolean = $derived(selectedLanguage == 'ja-JP')
+
     function loadVoices() {
         // Reset the mapping
         byLanguage = {}
@@ -112,20 +114,20 @@
 
 <p>
     {#if Object.keys(byLanguage).length === 0}
-        Loading voices…
+        {#if ja}こえをロードちゅう...{:else}Loading voices...{/if}
     {:else}
-        Language: <select bind:value={selectedLanguage} onchange={internalOnLanguageChanged}>
+        {#if ja}げんご：{:else}Language: {/if}<select bind:value={selectedLanguage} onchange={internalOnLanguageChanged}>
             {#each Object.keys(byLanguage).sort() as language}
                 <option value="{language}">{getFriendlyLanguageName(language)}</option>
             {/each}
         </select>
-        Voice: <select bind:value={selectedVoice} onchange={internalOnVoiceChanged}>
+        {#if ja}こえ：{:else}Voice: {/if}<select bind:value={selectedVoice} onchange={internalOnVoiceChanged}>
             {#if (typeof selectedLanguage) == "string"}
                 {#each byLanguage[selectedLanguage] as voice}
                     <option value={voice}>{voice.name}</option>
                 {/each}
             {/if}
         </select>
-        Rate (percentage): <input bind:value={ratePct} onchange={internalOnRateChanged} type="range" min="10" max="300" /> {ratePct}%
+        {#if ja}スピード（パーセント）：{:else}Speed (percentage): {/if}<input bind:value={ratePct} onchange={internalOnRateChanged} type="range" min="10" max="300" /> {ratePct}%
     {/if}
 </p>
