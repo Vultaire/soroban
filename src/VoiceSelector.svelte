@@ -1,12 +1,11 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    let { onLanguageChanged, onVoiceChanged, onRateChanged } = $props();
+    let { selectedLanguage = $bindable(), onLanguageChanged, onVoiceChanged, onRateChanged } = $props();
 
     let byLanguage: Record<string, SpeechSynthesisVoice[]> = $state({});
 
     let lastLanguage: string | undefined = undefined
-    let selectedLanguage: string | undefined = $state()
     let lastVoice: SpeechSynthesisVoice | undefined = undefined
     let selectedVoice: SpeechSynthesisVoice | undefined = $state()
 
@@ -27,6 +26,7 @@
             }
         })
         resetLanguage()
+        resetVoice()
     }
 
     function internalOnLanguageChanged(event: any) {
@@ -77,6 +77,15 @@
 
     function resetVoice() {
         if (selectedLanguage) {
+            if (selectedVoice === undefined) {
+                console.log('reset voice: voice undefined; selecting default for selected language')
+            } else if (byLanguage[selectedLanguage].indexOf(selectedVoice) === -1) {
+                console.log('reset voice: voice does not match selected language; selecting default for selected language')
+            } else {
+                // Voice is fine; don't touch it!
+                return
+            }
+            // If we get here: reset the voice
             updateVoice(byLanguage[selectedLanguage][0])
         }
     }

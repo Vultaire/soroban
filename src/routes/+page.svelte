@@ -22,7 +22,7 @@
     // there's no need for us to call addProblem to initialize the first field.
 
     let title: string = $state(page.url.searchParams.get('title') || "")
-    let selectedLanguage: string | undefined = $state()
+    let selectedLanguage: string | undefined = $state(page.url.searchParams.get('language') || 'en-US')
     let selectedVoice: SpeechSynthesisVoice | undefined = $state()
     let selectedRate: number = $state(100)
     let problems: ProblemState[] = $state(problemsFromParam)
@@ -47,7 +47,11 @@
     }
 
     function onLanguageChanged(language: string) {
-        selectedLanguage = language
+        //selectedLanguage = language  // No longer needed here; two-way binding handles this part at least.
+        // Update the URL parameters to match the current problems
+        const newURL = page.url
+        newURL.searchParams.set('language', selectedLanguage)
+        goto(newURL, {keepFocus: true})
     }
 
     function onRateChanged(rate: number) {
@@ -119,7 +123,7 @@
 </svelte:head>
 
 Title for this page: <input bind:value={title} oninput={onTitleChanged} />
-<VoiceSelector {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
+<VoiceSelector bind:selectedLanguage {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
 <hr />
 <input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">Edit mode</label>
 <input type="radio" name="mode" bind:group={mode} id="practice" value="practice" autocomplete="off" onchange={onModeChange} /><label for="practice">Practice mode</label>
