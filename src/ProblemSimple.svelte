@@ -22,7 +22,7 @@
             return
         }
 
-        let output = sanitize(phrase)
+        let output = sanitizeForSpeech(phrase)
 
         const utterance = new SpeechSynthesisUtterance(output)
         //const utterance = new SpeechSynthesisUtterance(phrase)
@@ -40,8 +40,12 @@
         })
     }
 
-    function sanitize(rawProblem: string): string {
+    function sanitizeForSpeech(rawProblem: string): string {
         return substituteTokens(tokenSanitize(rawProblem)).join(" ")
+    }
+
+    function sanitize(rawProblem: string): string {
+        return tokenSanitize(rawProblem).join(" ")
     }
 
     function substituteTokens(tokens: string[]): string[] {
@@ -68,6 +72,17 @@
         }
     }
 
+    function getProblemWithAnswer(problem: string): string {
+        const sanitizedProblem = sanitize(problem)
+        let answer
+        try {
+            answer = eval(sanitizedProblem)
+        } catch (error) {
+            answer = '<eval error>'
+        }
+        return `${sanitizedProblem} = ${answer}`
+    }
+
     onMount(() => {
         lastProblemValue = problem
     })
@@ -88,7 +103,7 @@
     {/if}
     <button onclick={() => {showAnswer = !showAnswer}}>{#if showAnswer}Hide{:else}Show{/if} answer</button>
     {#if showAnswer}
-    <span class="answer">{sanitize(problem)} = {eval(sanitize(problem))}</span>
+    <span class="answer">{getProblemWithAnswer(problem)}</span>
     {/if}
     {/if}
 </div>
