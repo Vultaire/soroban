@@ -129,16 +129,20 @@
 {#if ja}ページのタイトル：{:else}Title for this page: {/if}<input bind:value={title} oninput={onTitleChanged} />
 <VoiceSelector bind:selectedLanguage bind:kanji {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
 <hr />
-<input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">{#if ja}へんしゅうモード{:else}Edit mode{/if}</label>
-<input type="radio" name="mode" bind:group={mode} id="practice" value="practice" autocomplete="off" onchange={onModeChange} /><label for="practice">{#if ja}れんしゅうモード{:else}Practice mode{/if}</label>
+<input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">{#if ja && kanji}編集モード{:else if ja}へんしゅうモード{:else}Edit mode{/if}</label>
+<input type="radio" name="mode" bind:group={mode} id="practice" value="practice" autocomplete="off" onchange={onModeChange} /><label for="practice">{#if ja && kanji}練習モード{:else if ja}れんしゅうモード{:else}Practice mode{/if}</label>
 {#if mode == 'edit'}
-  {#if ja}
+  {#if ja && kanji}
+  <p>問題を一個ずつ記入してください。半角の数字、「+」、「-」は大丈夫です。例えば：<span class="mono">123+45-67</span></p>
+  {:else if ja}
   <p>もんだいをいっこずつきにゅうしてください。はんかくのすうじ、「+」、「-」はだいじょうぶです。たとえば：<span class="mono">123+45-67</span></p>
   {:else}
   <p>Input problems one-by-one, using numbers and +/-, e.g. <span class="mono">123+45-67</span>.  (No commas yet.  No multiplication/division yet.)</p>
   {/if}
 {:else}
-  {#if ja}
+  {#if ja && kanji}
+  <p>問題を再生して、回答して（そろばんでも、暗算でも）、そして答えを確認してください。</p>
+  {:else if ja}
   <p>もんだいをさいせいして、かいとうして（そろばんでも、あんざんでも）、そしてこたえをかくにんしてください。</p>
   {:else}
   <p>Play back the problems, solve them (soroban or anzan), then check your answers.</p>
