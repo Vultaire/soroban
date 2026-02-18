@@ -126,7 +126,7 @@
     <title>{title ? title : (ja ? "そろばん：よみあげざんツール" : "Soroban reader")}</title>
 </svelte:head>
 
-{#if ja}ページのタイトル：{:else}Title for this page: {/if}<input bind:value={title} oninput={onTitleChanged} />
+{#if ja}ページのタイトル：{:else}Title for this page: {/if}<input bind:value={title} autocomplete="off" oninput={onTitleChanged} />
 <VoiceSelector bind:selectedLanguage bind:kanji {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
 <hr />
 <input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">{#if ja && kanji}編集モード{:else if ja}へんしゅうモード{:else}Edit mode{/if}</label>

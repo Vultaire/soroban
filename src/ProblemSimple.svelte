@@ -98,7 +98,7 @@
 
 <div>
     {#if mode=="edit"}
-    <input class="problem-simple" bind:value={problem} type="text" oninput={onProblemInnerChange} {onkeyup} />
+    <input class="problem-simple" bind:value={problem} type="text" autocomplete="off" oninput={onProblemInnerChange} {onkeyup} />
     {:else}
     {#if selectedVoice}
     <button onclick={() => onListenClicked(problem)}>{#if ja && kanji}聞く{:else if ja}きく{:else}Listen{/if}</button>
