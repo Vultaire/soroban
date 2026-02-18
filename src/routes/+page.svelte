@@ -39,6 +39,8 @@
     // For Japanese display: allow for displaying with and without kanji (the latter being more kid friendly)
     let kanji: boolean = $state(true)
 
+    let debug: boolean = $state(page.url.searchParams.get('debug') == "true" || false)
+
     /* Add a problem...  Currently jush pushes empty strings to generate more objects.
        I don't think this really handles state from the children yet, nor am I sure I really need that. */
     function addProblem() {
@@ -163,6 +165,7 @@
                         {selectedVoice}
                         {selectedRate}
                         {mode}
+                        {debug}
                         {onProblemChange}
                         onEnter={() => {onProblemEnter(i)}}
                         />
