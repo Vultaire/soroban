@@ -31,7 +31,17 @@
     if (modeParam != 'edit' && modeParam != 'practice') {
         modeParam = 'edit'
     }
-    let mode: string = $state(modeParam)
+    let viewMode: string = $state(modeParam)
+
+    const ALL_AT_ONCE = 'all-at-once'
+    const BY_NUMBER = 'by-number'
+
+    let speechModeParam = page.url.searchParams.get('speechMode')
+    if (speechModeParam != ALL_AT_ONCE && speechModeParam != BY_NUMBER) {
+        speechModeParam = BY_NUMBER
+    }
+    let speechMode: string = $state(speechModeParam)
+    let speakByPart: boolean = $derived(speechMode == BY_NUMBER)
 
     let allAnswersVisible: boolean = $state(false);
 
@@ -52,34 +62,32 @@
         selectedVoice = voice
     }
 
-    function onLanguageChanged(language: string) {
+    function onSpeechModeChanged() {
+        speechMode = (speechMode == BY_NUMBER ? ALL_AT_ONCE : BY_NUMBER)
+        updateUrlParam('speechMode', speechMode)
+    }
+
+    function onLanguageChanged() {
         //selectedLanguage = language  // No longer needed here; two-way binding handles this part at least.
         // Update the URL parameters to match the current problems
-        const newURL = page.url
-        newURL.searchParams.set('language', selectedLanguage)
-        goto(newURL, {keepFocus: true})
+        updateUrlParam('language', selectedLanguage)
     }
 
     function onRateChanged(rate: number) {
         selectedRate = rate
     }
 
-    function onModeChange() {
+    function onViewModeChange() {
         // Update the URL parameters to match the current problems
-        const newURL = page.url
-        newURL.searchParams.set('mode', mode)
-        goto(newURL, {keepFocus: true})
+        updateUrlParam('mode', viewMode)
     }
 
     function onProblemChange() {
         // Update the URL parameters to match the current problems
-        const newURL = page.url
-        newURL.searchParams.set('problems', problems.map((problem) => problem.problem).join(','))
-        goto(newURL, {keepFocus: true})
+        updateUrlParam('problems', problems.map((problem) => problem.problem).join(','))
     }
 
     function onProblemEnter(i: number) {
-        console.log(`i: ${i}, problem length: ${problems.length}`)
         if (i == problems.length - 1) {
             // We're on the last problem; add a new box for us to move to
             addProblem()
@@ -102,8 +110,12 @@
 
     function onTitleChanged() {
         // Update the URL parameters to match the current title
+        updateUrlParam('title', title)
+    }
+
+    function updateUrlParam(field: string, value: string) {
         const newURL = page.url
-        newURL.searchParams.set('title', title)
+        newURL.searchParams.set(field, value)
         goto(newURL, {keepFocus: true})
     }
 
@@ -129,11 +141,11 @@
 </svelte:head>
 
 {#if ja}ページのタイトル：{:else}Title for this page: {/if}<input bind:value={title} autocomplete="off" oninput={onTitleChanged} />
-<VoiceSelector bind:selectedLanguage bind:kanji {onLanguageChanged} {onVoiceChanged} {onRateChanged} />
+<VoiceSelector bind:selectedLanguage bind:kanji {onLanguageChanged} {onVoiceChanged} {onRateChanged} {speakByPart} {onSpeechModeChanged} />
 <hr />
-<input type="radio" name="mode" bind:group={mode} id="edit" value="edit" autocomplete="off" onchange={onModeChange} /><label for="edit">{#if ja && kanji}編集モード{:else if ja}へんしゅうモード{:else}Edit mode{/if}</label>
-<input type="radio" name="mode" bind:group={mode} id="practice" value="practice" autocomplete="off" onchange={onModeChange} /><label for="practice">{#if ja && kanji}練習モード{:else if ja}れんしゅうモード{:else}Practice mode{/if}</label>
-{#if mode == 'edit'}
+<input type="radio" name="mode" bind:group={viewMode} id="edit" value="edit" autocomplete="off" onchange={onViewModeChange} /><label for="edit">{#if ja && kanji}編集モード{:else if ja}へんしゅうモード{:else}Edit mode{/if}</label>
+<input type="radio" name="mode" bind:group={viewMode} id="practice" value="practice" autocomplete="off" onchange={onViewModeChange} /><label for="practice">{#if ja && kanji}練習モード{:else if ja}れんしゅうモード{:else}Practice mode{/if}</label>
+{#if viewMode == 'edit'}
   {#if ja && kanji}
   <p>問題を一個ずつ記入してください。半角の数字、「+」、「-」は大丈夫です。例えば：<span class="mono">123+45-67</span></p>
   {:else if ja}
@@ -164,7 +176,8 @@
                         {kanji}
                         {selectedVoice}
                         {selectedRate}
-                        {mode}
+                        {viewMode}
+                        {speechMode}
                         {debug}
                         {onProblemChange}
                         onEnter={() => {onProblemEnter(i)}}
@@ -174,7 +187,7 @@
         {/each}
     </tbody>
 </table>
-{#if mode == 'edit'}
+{#if viewMode == 'edit'}
 <button onclick={addProblem}>{#if ja && kanji}問題を追加する{:else if ja}もんだいをついかする{:else}Add problem{/if}</button>
 <button onclick={clearAllProblems}>{#if ja && kanji}問題を全部消す{:else if ja}もんだいをぜんぶけす{:else}Clear all problems{/if}</button>
 {:else}

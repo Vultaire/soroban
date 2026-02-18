@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    let { selectedLanguage = $bindable(), kanji = $bindable(), onLanguageChanged, onVoiceChanged, onRateChanged } = $props();
+    let { selectedLanguage = $bindable(), kanji = $bindable(), onLanguageChanged, onVoiceChanged, onRateChanged, speakByPart, onSpeechModeChanged } = $props();
 
     let byLanguage: Record<string, SpeechSynthesisVoice[]> = $state({});
 
@@ -80,9 +80,9 @@
     function resetVoice() {
         if (selectedLanguage && Object.hasOwn(byLanguage, selectedLanguage) && byLanguage[selectedLanguage].length > 0) {
             if (selectedVoice === undefined) {
-                console.log('reset voice: voice undefined; selecting default for selected language')
+                //console.log('reset voice: voice undefined; selecting default for selected language')
             } else if (byLanguage[selectedLanguage].indexOf(selectedVoice) === -1) {
-                console.log('reset voice: voice does not match selected language; selecting default for selected language')
+                //console.log('reset voice: voice does not match selected language; selecting default for selected language')
             } else {
                 // Voice is fine; don't touch it!
                 return
@@ -129,6 +129,7 @@
             {/if}
         </select>
         {#if ja}スピード（パーセント）：{:else}Speed (percentage): {/if}<input bind:value={ratePct} autocomplete="off" onchange={internalOnRateChanged} type="range" min="10" max="300" /> {ratePct}%
+        <input id="speak-by-part" type="checkbox" bind:checked={speakByPart} onchange={onSpeechModeChanged} autocomplete="off"><label for="speak-by-part">{#if ja && kanji}問題を部分で言う{:else if ja}もんだいをぶぶんでいう{:else}Say part-by-part{/if}</label>
     {/if}
     {#if ja}
     <br />
