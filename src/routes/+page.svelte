@@ -1,6 +1,6 @@
 <script lang="ts">
-    import VoiceSelector from '../VoiceSelector.svelte'
-    import ProblemSimple from '../ProblemSimple.svelte'
+    import VoiceSelector from '../lib/components/VoiceSelector.svelte'
+    import ProblemSimple from '../lib/components/ProblemSimple.svelte'
 
     import { page } from '$app/state'
     import { goto } from '$app/navigation'
