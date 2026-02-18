@@ -129,10 +129,11 @@
             {/if}
         </select>
         {#if ja}スピード（パーセント）：{:else}Speed (percentage): {/if}<input bind:value={ratePct} autocomplete="off" onchange={internalOnRateChanged} type="range" min="10" max="300" /> {ratePct}%
-        <input id="speak-by-part" type="checkbox" bind:checked={speakByPart} onchange={onSpeechModeChanged} autocomplete="off"><label for="speak-by-part">{#if ja && kanji}問題を部分で言う{:else if ja}もんだいをぶぶんでいう{:else}Say part-by-part{/if}</label>
     {/if}
     {#if ja}
     <br />
     <input id="kanji" type="checkbox" bind:checked={kanji} autocomplete="off"><label for="kanji">{#if kanji}漢字を使う{:else}かんじをつかう{/if}</label>
     {/if}
+    <br />
+    <input id="speak-by-part" type="checkbox" bind:checked={speakByPart} onchange={onSpeechModeChanged} autocomplete="off"><label for="speak-by-part">{#if ja && kanji}問題を部分で言う{:else if ja}もんだいをぶぶんでいう{:else}Say part-by-part{/if}</label>
 </p>
