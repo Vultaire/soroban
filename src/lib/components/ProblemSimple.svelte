@@ -28,15 +28,15 @@
 
     let tokenSubstitutions = $derived(substitutions[selectedLanguage] || {})
 
-    let speechTokens: string[] = $derived.by(() => {
+    // Use this list for calculating in sequence
+    // (no parens, no PEMDAS order of operations, but rather a simple "calculate in order I say"
+    // calculation suitable for soroban purposes)
+    let evalTokens: string[] = $derived.by(() => {
         const safeTokens = getSanitizedTokens()
         const tempTokens: string[] = []
         const finalTokens: string[] = []
 
         safeTokens.forEach((token) => {
-            if (token in tokenSubstitutions) {
-                token = tokenSubstitutions[token]
-            }
             tempTokens.push(token)
             if(token.match(digitRgx)) {
                 finalTokens.push(tempTokens.join(" "))
@@ -44,6 +44,16 @@
             }
         })
         return finalTokens
+    })
+
+    let speechTokens: string[] = $derived.by(() => {
+        return evalTokens.map((token) => {
+            for (const key in tokenSubstitutions) {
+                const value = tokenSubstitutions[key]
+                token = token.replace(key, value)
+            }
+            return token
+        })
     })
 
     // "Speak all" handler
@@ -103,9 +113,20 @@
 
     function getProblemWithAnswer(): string {
         const sanitizedProblem = sanitizeProblem()
-        let answer
+        let answer: string = "0"
         try {
-            answer = eval(sanitizedProblem)
+            if (evalTokens.length > 0) {
+                answer = eval(evalTokens[0]).toString()
+            }
+            // Simple eval: eval bit by bit.
+            // I'm being lazy here and not implementing my own eval logic,
+            // instead just re-using each intermediate answer
+            // again in an eval expression.
+            // My hope is this is "good enough" for this tool, but if not I
+            // can always write a more proper parser later to remove the eval() usage.
+            for (let i=1; i<evalTokens.length; i++) {
+                answer = eval([answer, evalTokens[i]].join(" ")).toString()
+            }
         } catch (error) {
             answer = '<error>'
         }

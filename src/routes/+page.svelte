@@ -147,11 +147,11 @@
 <input type="radio" name="mode" bind:group={viewMode} id="practice" value="practice" autocomplete="off" onchange={onViewModeChange} /><label for="practice">{#if ja && kanji}練習モード{:else if ja}れんしゅうモード{:else}Practice mode{/if}</label>
 {#if viewMode == 'edit'}
   {#if ja && kanji}
-  <p>問題を一個ずつ記入してください。半角の数字、「+」、「-」、「*」、「/」は大丈夫です。例えば：<span class="mono">123+45-67</span></p>
+  <p>問題を一個ずつ記入してください。半角の数字、「+」、「-」、「*」、「/」は大丈夫です。例えば：<span class="mono">123+45-67</span>。()を使えません。計算は簡単の「左から右順」です。</p>
   {:else if ja}
-  <p>もんだいをいっこずつきにゅうしてください。はんかくのすうじ、「+」、「-」、「*」、「/」はだいじょうぶです。たとえば：<span class="mono">123+45-67</span></p>
+  <p>もんだいをいっこずつきにゅうしてください。はんかくのすうじ、「+」、「-」、「*」、「/」はだいじょうぶです。たとえば：<span class="mono">123+45-67</span>。()をつかえません。けいさんはかんたんの「ひだりからみぎじゅん」です。</p>
   {:else}
-  <p>Input problems one-by-one, using numbers and +-*/ characters, e.g. <span class="mono">123+45-67</span>.  (No commas.)</p>
+  <p>Input problems one-by-one, using numbers and +-*/ characters, e.g. <span class="mono">123+45-67</span>.  (No commas, no parenthesis.  Note that solutions are calculated in simple left-to-right order.)</p>
   {/if}
 {:else}
   {#if ja && kanji}
