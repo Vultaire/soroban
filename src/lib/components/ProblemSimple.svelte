@@ -4,14 +4,18 @@
     const substitutions = {
         "en-US": {
             "-": "minus",
+            "*": "multiplied by",
+            "/": "divided by",
         },
         "ja-JP": {
             "+": "たす",
             "-": "ひく",
+            "*": "かける",
+            "/": "わる",
         },
     }
 
-    const validTokensRgx = /(\d+|[\+\-])/g
+    const validTokensRgx = /(\d+|[\+\-\*\/])/g
     const digitRgx = /^\d+$/
 
     let { problem = $bindable(), showAnswer = $bindable(), viewMode, speechMode, selectedLanguage, kanji, selectedVoice, selectedRate, debug, onProblemChange, onEnter } = $props();
