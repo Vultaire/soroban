@@ -48,10 +48,14 @@
     })
 
     let speechTokens: string[] = $derived.by(() => {
-        return evalTokens.map((token) => {
+        return evalTokens.map((token, i) => {
             for (const key in tokenSubstitutions) {
-                const value = tokenSubstitutions[key]
+                let value = tokenSubstitutions[key]
                 token = token.replace(key, value)
+            }
+            if (i === evalTokens.length - 1) {
+                const lastTokenAddition = ja ? ' は' : ' is'
+                token += lastTokenAddition
             }
             return token
         })
