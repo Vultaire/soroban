@@ -112,28 +112,39 @@
     })
 </script>
 
-<p>
+<div>
     {#if Object.keys(byLanguage).length === 0}
         {#if ja && kanji}声をロード中...{:else if ja}こえをロードちゅう...{:else}Loading voices...{/if}
     {:else}
-        {#if ja && kanji}言語：{:else if ja}げんご：{:else}Language: {/if}<select bind:value={selectedLanguage} autocomplete="off" onchange={internalOnLanguageChanged}>
-            {#each Object.keys(byLanguage).sort() as language}
-                <option value="{language}">{getFriendlyLanguageName(language)}</option>
-            {/each}
-        </select>
-        {#if ja && kanji}声：{:else if ja}こえ：{:else}Voice: {/if}<select bind:value={selectedVoice} autocomplete="off" onchange={internalOnVoiceChanged}>
-            {#if (typeof selectedLanguage) == "string"}
-                {#each byLanguage[selectedLanguage] as voice}
-                    <option value={voice}>{voice.name}</option>
-                {/each}
-            {/if}
-        </select>
-        {#if ja}スピード（パーセント）：{:else}Speed (percentage): {/if}<input bind:value={ratePct} autocomplete="off" onchange={internalOnRateChanged} type="range" min="10" max="300" /> {ratePct}%
+        <div>
+            <div>
+                {#if ja && kanji}言語：{:else if ja}げんご：{:else}Language: {/if}
+                <select bind:value={selectedLanguage} autocomplete="off" onchange={internalOnLanguageChanged}>
+                    {#each Object.keys(byLanguage).sort() as language}
+                        <option value="{language}">{getFriendlyLanguageName(language)}</option>
+                    {/each}
+                </select>
+            </div>
+            <div>
+                {#if ja && kanji}声：{:else if ja}こえ：{:else}Voice: {/if}
+                <select bind:value={selectedVoice} autocomplete="off" onchange={internalOnVoiceChanged}>
+                    {#if (typeof selectedLanguage) == "string"}
+                        {#each byLanguage[selectedLanguage] as voice}
+                            <option value={voice}>{voice.name}</option>
+                        {/each}
+                    {/if}
+                </select>
+                {#if ja}スピード（パーセント）：{:else}Speed (percentage): {/if}
+                <input bind:value={ratePct} autocomplete="off" onchange={internalOnRateChanged} type="range" min="10" max="300" /> {ratePct}%
+            </div>
+        </div>
     {/if}
     {#if ja}
-    <br />
-    <input id="kanji" type="checkbox" bind:checked={kanji} autocomplete="off"><label for="kanji">{#if kanji}漢字を使う{:else}かんじをつかう{/if}</label>
+    <div>
+        <input id="kanji" type="checkbox" bind:checked={kanji} autocomplete="off"><label for="kanji">{#if kanji}漢字を使う{:else}かんじをつかう{/if}</label>
+    </div>
     {/if}
-    <br />
-    <input id="speak-by-part" type="checkbox" bind:checked={speakByPart} onchange={onSpeechModeChanged} autocomplete="off"><label for="speak-by-part">{#if ja && kanji}問題を部分で言う{:else if ja}もんだいをぶぶんでいう{:else}Say part-by-part{/if}</label>
-</p>
+    <div>
+        <input id="speak-by-part" type="checkbox" bind:checked={speakByPart} onchange={onSpeechModeChanged} autocomplete="off"><label for="speak-by-part">{#if ja && kanji}問題を部分で言う{:else if ja}もんだいをぶぶんでいう{:else}Say part-by-part{/if}</label>
+    </div>
+</div>
