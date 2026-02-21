@@ -1,7 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { ProblemState } from '../classes/ProblemState'
 
-    const substitutions = {
+    const substitutions: Record<string,Record<string,string>> = {
         "en-US": {
             "-": "minus",
             "*": "multiplied by",
@@ -20,7 +21,7 @@
 
     let { problem = $bindable(), showAnswer = $bindable(), viewMode, speechMode, selectedLanguage, kanji, selectedVoice, selectedRate, debug, onProblemChange, onEnter } = $props();
 
-    let lastProblemValue = null;
+    let lastProblemValue: ProblemState | null = null;
 
     let ja: boolean = $derived(selectedLanguage == 'ja-JP')
 
@@ -80,16 +81,19 @@
     }
 
     function speak(phrase: string) {
-        const utterance = new SpeechSynthesisUtterance(phrase)
-        utterance.lang = selectedLanguage ?? "en-US"
-        utterance.rate = selectedRate / 100
-        utterance.voice = (selectedVoice as SpeechSynthesisVoice)
-        window.speechSynthesis.speak(utterance)
+        if (selectedVoice) {
+            const utterance = new SpeechSynthesisUtterance(phrase)
+            utterance.lang = selectedLanguage ?? "en-US"
+            utterance.rate = selectedRate / 100
+            utterance.voice = selectedVoice
+            window.speechSynthesis.speak(utterance)
+        }
     }
 
     function getSanitizedTokens(): string[] {
         /* Very simple: match on numbers (multidigit) and operators (singular).  Commas not (yet) supported. */
-        return Array.from(problem.matchAll(validTokensRgx)).map(match => {
+        const matches: string[][] = Array.from(problem.matchAll(validTokensRgx))
+        return matches.map(function (match: string[]): string {
             return match[1]
         })
     }
@@ -105,7 +109,8 @@
         }
     }
 
-    function onkeyup(event) {
+    function onkeyup(event: KeyboardEvent) {
+        console.log(typeof event)
         if (event.key == "Enter") {
             onEnter()
         }

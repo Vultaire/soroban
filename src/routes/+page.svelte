@@ -6,15 +6,7 @@
     import { goto } from '$app/navigation'
     import { tick } from 'svelte'
 
-    class ProblemState {
-        problem: string;
-        showAnswer: boolean;
-
-        constructor(problem: string) {
-            this.problem = $state(problem)
-            this.showAnswer = $state(false)
-        }
-    }
+    import { ProblemState } from '../lib/classes/ProblemState'
 
 	const problemsFromParam = (page.url.searchParams.get('problems') || "").split(",").map((problemStr) => new ProblemState(problemStr));
     // JS quirk: splitting an empty string gives a list with an empty string, not an empty list.
@@ -70,7 +62,9 @@
     function onLanguageChanged() {
         //selectedLanguage = language  // No longer needed here; two-way binding handles this part at least.
         // Update the URL parameters to match the current problems
-        updateUrlParam('language', selectedLanguage)
+        if (typeof selectedLanguage === 'string') {
+            updateUrlParam('language', selectedLanguage)
+        }
     }
 
     function onRateChanged(rate: number) {
@@ -96,7 +90,8 @@
         // This is quick and dirty and likely not the proper svelte way, but it'll work for now.
         // Try to make this cleaner later.
         tick().then(() => {
-            document.querySelectorAll('input.problem-simple')[i+1].focus()
+            const elements: NodeListOf<HTMLElement> = document.querySelectorAll('input.problem-simple')
+            elements[i+1].focus()
         })
     }
 
