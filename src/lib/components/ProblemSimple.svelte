@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { ProblemState } from '../classes/ProblemState'
+    import { ProblemState } from '../classes/ProblemState.svelte'
 
     const substitutions: Record<string,Record<string,string>> = {
         "en-US": {

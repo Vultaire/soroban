@@ -6,7 +6,7 @@
     import { goto } from '$app/navigation'
     import { tick } from 'svelte'
 
-    import { ProblemState } from '../lib/classes/ProblemState'
+    import { ProblemState } from '../lib/classes/ProblemState.svelte'
 
 	const problemsFromParam = (page.url.searchParams.get('problems') || "").split(",").map((problemStr) => new ProblemState(problemStr));
     // JS quirk: splitting an empty string gives a list with an empty string, not an empty list.
