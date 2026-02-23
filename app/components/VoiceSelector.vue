@@ -1,0 +1,146 @@
+<script setup lang="ts">
+
+const selectedLanguage = defineModel('selectedLanguage')
+const selectedVoice = defineModel('selectedVoice')
+const kanji = defineModel('kanji')
+
+const ja = computed(() => selectedLanguage.value == "ja-JP")
+const speakByPart = ref(true)
+const ratePct = ref(100)
+
+const byLanguage = ref({} as Record<string, SpeechSynthesisVoice[]>)
+
+// Consider using vue's watch() function on selectedLanguage/selectedVoice; that may let us drop these.
+let lastLanguage: string | undefined = undefined
+let lastVoice: SpeechSynthesisVoice | undefined = undefined
+
+function loadVoices() {
+    // Reset the mapping
+    byLanguage.value = {}
+    // Rebuild the mapping
+    const localVoices = window.speechSynthesis.getVoices().filter(voice => {
+        return voice.localService;
+    });
+    localVoices.forEach(voice => {
+        if (['en-US', 'ja-JP'].indexOf(voice.lang) > -1) {
+            byLanguage.value[voice.lang] ??= []
+            byLanguage.value[voice.lang].push(voice)
+        }
+    })
+    resetLanguage()
+    resetVoice()
+}
+
+function internalOnLanguageChanged(event: any) {
+    handleLanguageUpdate()
+}
+
+function getFriendlyLanguageName(language: string): string {
+    const dn = new Intl.DisplayNames([navigator.language], { type: 'language' });
+    return dn.of(language) || language
+}
+
+function resetLanguage() {
+    if (!selectedLanguage.value) {
+        let newLanguage = Object.keys(byLanguage).sort()[0]
+        updateLanguage(newLanguage)
+    }
+}
+
+function updateLanguage(language: string) {
+    selectedLanguage.value = language;
+    handleLanguageUpdate()
+}
+
+function handleLanguageUpdate() {
+    if (selectedLanguage.value != lastLanguage) {
+        lastLanguage = selectedLanguage.value
+        //onLanguageChanged(selectedLanguage)
+        resetVoice()
+    }
+}
+
+function resetVoice() {
+    if (selectedLanguage.value && Object.hasOwn(byLanguage.value, selectedLanguage.value) && byLanguage.value[selectedLanguage.value].length > 0) {
+        if (selectedVoice.value === undefined) {
+            //console.log('reset voice: voice undefined; selecting default for selected language')
+        } else if (byLanguage.value[selectedLanguage.value].indexOf(selectedVoice.value) === -1) {
+            //console.log('reset voice: voice does not match selected language; selecting default for selected language')
+        } else {
+            // Voice is fine; don't touch it!
+            return
+        }
+        // If we get here: reset the voice
+        updateVoice(byLanguage.value[selectedLanguage.value][0])
+    }
+}
+
+function updateVoice(voice: SpeechSynthesisVoice) {
+    selectedVoice.value = voice
+    handleVoiceUpdate()
+}
+
+function handleVoiceUpdate() {
+    if (selectedVoice.value != lastVoice) {
+        lastVoice = selectedVoice.value
+        //onVoiceChanged(selectedVoice.value)
+    }
+}
+
+onMounted(() => {
+    // Try an initial load
+    loadVoices()
+    // But load later if we must
+    window.addEventListener('voiceschanged', loadVoices)
+})
+onBeforeUnmount(() => {
+    window.removeEventListener('voiceschanged', loadVoices)
+})
+</script>
+
+<template>
+    <div>
+        <template v-if="Object.keys(byLanguage).length === 0">
+            <template v-if="ja && kanji">声をロード中...</template>
+            <template v-else-if="ja">こえをロードちゅう...</template>
+            <template v-else>Loading voices...</template>
+        </template>
+        <div v-else>
+            <div>
+                <template v-if="ja && kanji">言語：</template>
+                <template v-else-if="ja">げんご：</template>
+                <template v-else>Language: </template>
+                <select v-model="selectedLanguage" @change="internalOnLanguageChanged" autocomplete="off">
+                    <option v-for="language in Object.keys(byLanguage).sort()" :value="language">{{ getFriendlyLanguageName(language) }}</option>
+                </select>
+            </div>
+            <div>
+                <template v-if="ja && kanji">声：</template>
+                <template v-else-if="ja">こえ：</template>
+                <template v-else>Voice: </template>
+                <select v-model="selectedVoice" autocomplete="off">
+                    <option v-for="voice in byLanguage[selectedLanguage]" :value="voice">{{ voice.name }}</option>
+                </select>
+                <template v-if="ja">スピード（パーセント）：</template>
+                <template v-else>Speed (percentage): </template>
+                <input v-model="ratePct" autocomplete="off" type="range" min="10" max="300" /> {{ ratePct }}%
+            </div>
+        </div>
+        <div v-if="ja">
+            <input id="kanji" type="checkbox" v-model="kanji" autocomplete="off">
+            <label for="kanji">
+                <template v-if="kanji">漢字を使う</template>
+                <template v-else>かんじをつかう</template>
+            </label>
+        </div>
+        <div>
+            <input id="speak-by-part" type="checkbox" v-model="speakByPart" autocomplete="off">
+            <label for="speak-by-part">
+                <template v-if="ja && kanji">問題を部分で言う</template>
+                <template v-else-if="ja">もんだいをぶぶんでいう</template>
+                <template v-else>Say part-by-part</template>
+            </label>
+        </div>
+    </div>
+
+</template>
