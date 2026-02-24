@@ -3,10 +3,10 @@
 const selectedLanguage = defineModel('selectedLanguage')
 const selectedVoice = defineModel('selectedVoice')
 const kanji = defineModel('kanji')
+const speakByPart = defineModel('speakByPart')
+const ratePct = defineModel('ratePct')
 
 const ja = computed(() => selectedLanguage.value == "ja-JP")
-const speakByPart = ref(true)
-const ratePct = ref(100)
 
 const byLanguage = ref({} as Record<string, SpeechSynthesisVoice[]>)
 

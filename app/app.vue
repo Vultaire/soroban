@@ -6,6 +6,8 @@ const title = ref("")  /* Will use this later */
 const selectedLanguage = ref("en-US")
 const ja = computed(() => selectedLanguage.value == "ja-JP")
 const kanji = ref(true)
+const speakByPart = ref(true)
+const ratePct = ref(100)
 
 const selectedVoice = ref(null)
 
@@ -41,6 +43,8 @@ useHead({
     v-model:selected-language="selectedLanguage"
     v-model:selected-voice="selectedVoice"
     v-model:kanji="kanji"
+    v-model:speak-by-part="speakByPart"
+    v-model:rate-pct="ratePct"
     />
   <hr />
   <input v-model="viewMode" type="radio" name="mode" id="edit" value="edit" autocomplete="off" />
