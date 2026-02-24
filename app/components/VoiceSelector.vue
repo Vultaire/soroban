@@ -15,10 +15,36 @@ let lastLanguage: string | undefined = undefined
 let lastVoice: SpeechSynthesisVoice | undefined = undefined
 
 function loadVoices() {
+    // This should be straightforward, but due to a Firefox bug
+    // (https://bugzilla.mozilla.org/show_bug.cgi?id=1237082), it is not.
+    // Sometimes window.speechSynthesis.getVoices() will return an empty list,
+    // and no voiceschanged handler fires to indicate that the voices have finally been loaded.
+    // Thus, we need to work around this issue asynchronously.
+
+    let attempts = 0;
+    const intervalMs = 100
+    const maxAttempts = 50;
+    function tryLoadVoices() {
+        attempts += 1
+        if (!loadVoicesInner() && attempts < maxAttempts) {
+            window.setTimeout(tryLoadVoices, intervalMs)
+        }
+    }
+    tryLoadVoices()
+
+    // Register a handler in case voices change later
+    window.addEventListener("voiceschanged", loadVoicesInner)
+}
+
+function loadVoicesInner(): boolean {
+    const unfilteredVoices = window.speechSynthesis.getVoices()
+    if (unfilteredVoices.length === 0) {
+        return false
+    }
     // Reset the mapping
     byLanguage.value = {}
     // Rebuild the mapping
-    const localVoices = window.speechSynthesis.getVoices().filter(voice => {
+    const localVoices = unfilteredVoices.filter(voice => {
         return voice.localService;
     });
     localVoices.forEach(voice => {
@@ -29,6 +55,7 @@ function loadVoices() {
     })
     resetLanguage()
     resetVoice()
+    return true
 }
 
 function internalOnLanguageChanged(event: any) {
@@ -88,13 +115,11 @@ function handleVoiceUpdate() {
 }
 
 onMounted(() => {
-    // Try an initial load
     loadVoices()
-    // But load later if we must
-    window.addEventListener('voiceschanged', loadVoices)
 })
 onBeforeUnmount(() => {
-    window.removeEventListener('voiceschanged', loadVoices)
+    // Just in case this gets registered, remove it.
+    window.removeEventListener('voiceschanged', loadVoicesInner)
 })
 </script>
 
