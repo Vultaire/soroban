@@ -10,10 +10,6 @@ const ratePct = ref(100)
 
 const byLanguage = ref({} as Record<string, SpeechSynthesisVoice[]>)
 
-// Consider using vue's watch() function on selectedLanguage/selectedVoice; that may let us drop these.
-let lastLanguage: string | undefined = undefined
-let lastVoice: SpeechSynthesisVoice | undefined = undefined
-
 function loadVoices() {
     // This should be straightforward, but due to a Firefox bug
     // (https://bugzilla.mozilla.org/show_bug.cgi?id=1237082), it is not.
@@ -58,32 +54,10 @@ function loadVoicesInner(): boolean {
     return true
 }
 
-function internalOnLanguageChanged(event: any) {
-    handleLanguageUpdate()
-}
-
-function getFriendlyLanguageName(language: string): string {
-    const dn = new Intl.DisplayNames([navigator.language], { type: 'language' });
-    return dn.of(language) || language
-}
-
 function resetLanguage() {
     if (!selectedLanguage.value) {
-        let newLanguage = Object.keys(byLanguage).sort()[0]
-        updateLanguage(newLanguage)
-    }
-}
-
-function updateLanguage(language: string) {
-    selectedLanguage.value = language;
-    handleLanguageUpdate()
-}
-
-function handleLanguageUpdate() {
-    if (selectedLanguage.value != lastLanguage) {
-        lastLanguage = selectedLanguage.value
-        //onLanguageChanged(selectedLanguage)
-        resetVoice()
+        let newLanguage = Object.keys(byLanguage.value).sort()[0]
+        selectedLanguage.value = newLanguage;
     }
 }
 
@@ -98,21 +72,21 @@ function resetVoice() {
             return
         }
         // If we get here: reset the voice
-        updateVoice(byLanguage.value[selectedLanguage.value][0])
+        selectedVoice.value = byLanguage.value[selectedLanguage.value][0]
     }
 }
 
-function updateVoice(voice: SpeechSynthesisVoice) {
-    selectedVoice.value = voice
-    handleVoiceUpdate()
+function getFriendlyLanguageName(language: string): string {
+    const dn = new Intl.DisplayNames([navigator.language], { type: 'language' });
+    return dn.of(language) || language
 }
 
-function handleVoiceUpdate() {
-    if (selectedVoice.value != lastVoice) {
-        lastVoice = selectedVoice.value
-        //onVoiceChanged(selectedVoice.value)
+watch(selectedLanguage, (newLang, oldLang) => {
+    //console.log(`watcher for selectedLanguage: ${oldLang} -> ${newLang}`)
+    if (newLang !== oldLang) {
+        resetVoice()
     }
-}
+})
 
 onMounted(() => {
     loadVoices()
@@ -135,7 +109,7 @@ onBeforeUnmount(() => {
                 <template v-if="ja && kanji">言語：</template>
                 <template v-else-if="ja">げんご：</template>
                 <template v-else>Language: </template>
-                <select v-model="selectedLanguage" @change="internalOnLanguageChanged" autocomplete="off">
+                <select v-model="selectedLanguage" autocomplete="off">
                     <option v-for="language in Object.keys(byLanguage).sort()" :value="language">{{ getFriendlyLanguageName(language) }}</option>
                 </select>
             </div>
