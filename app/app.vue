@@ -13,7 +13,7 @@ const selectedVoice = ref(null)
 
 const viewMode = ref("edit") // for now...
 
-const problems = ref([])
+const problems = ref([{problem: "", showAnswer: false}])
 const allAnswersVisible = ref(false)
 
 useHead({
@@ -74,23 +74,18 @@ useHead({
 
     <table>
         <tbody>
-            <tr v-for="(problem, i) in problems">
-                <td>{i+1}. </td>
+            <tr v-for="(problemObject, i) in problems">
+                <td>{{ i+1 }}. </td>
                 <td>
-                {{ problem }}
-                <!--<ProblemSimple
-                    bind:problem={problems[i].problem}
-                    bind:showAnswer={problems[i].showAnswer}
-                    {selectedLanguage}
-                    {kanji}
-                    {selectedVoice}
-                    {selectedRate}
-                    {viewMode}
-                    {speechMode}
-                    {debug}
-                    {onProblemChange}
-                    onEnter={() => {onProblemEnter(i)}}
-                    />-->
+                <ProblemSimple
+                    v-model:problem="problemObject.problem"
+                    v-model:show-answer="problemObject.showAnswer"
+                    :view-mode="viewMode"
+                    :selected-language="selectedLanguage"
+                    :kanji="kanji"
+                    :selected-voice="selectedVoice"
+                    :speak-by-part="speakByPart"
+                    />
                 </td>
             </tr>
         </tbody>
