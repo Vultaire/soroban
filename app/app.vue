@@ -50,6 +50,11 @@ function clearAllProblems() {
     }
 }
 
+function showAllAnswers() {
+    allAnswersVisible.value = !allAnswersVisible.value
+    problems.value.forEach(problem => problem.showAnswer = allAnswersVisible.value)
+}
+
 </script>
 
 <style>
@@ -134,7 +139,7 @@ function clearAllProblems() {
         </button>
     </template>
     <template v-else>
-        <button>
+        <button @click="showAllAnswers">
             <template v-if="ja && kanji">
                 答えを全部<template v-if="allAnswersVisible">隠す</template><template v-else>見せる</template>
             </template>
