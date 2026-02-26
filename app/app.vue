@@ -43,6 +43,13 @@ function addProblem() {
     problems.value.push(newProblem())
 }
 
+function clearAllProblems() {
+    // Reset problems to a single empty item.
+    if (confirm("Are you sure you wish to clear all problems?")) {
+        problems.value = [newProblem()]
+    }
+}
+
 </script>
 
 <style>
@@ -115,12 +122,12 @@ function addProblem() {
     </table>
 
     <template v-if="viewMode === 'edit'">
-        <button>
+        <button @click="addProblem">
             <template v-if="ja && kanji">問題を追加する</template>
             <template v-else-if="ja && kanji">もんだいをついかする</template>
             <template v-else>Add problem</template>
         </button>
-        <button>
+        <button @click="clearAllProblems">
             <template v-if="ja && kanji">問題を全部消す</template>
             <template v-else-if="ja && kanji">もんだいをぜんぶけす</template>
             <template v-else>Clear all problems</template>
