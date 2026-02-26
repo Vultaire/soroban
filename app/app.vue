@@ -13,8 +13,12 @@ const selectedVoice = ref(null)
 
 const viewMode = ref("edit") // for now...
 
-const problems = ref([{problem: "", showAnswer: false}])
 const allAnswersVisible = ref(false)
+
+function newProblem() {
+    return {problem: "", showAnswer: false}
+}
+const problems = ref([newProblem()])
 
 // Due to https://github.com/nuxt/content/issues/1919 (stale but present issue), useHeadSafe won't work here.
 // However, we're not touching innerHTML or similar attributes, so I think it'll be OK in our case to use stock useHead.
@@ -22,6 +26,22 @@ useHead({
   /* FIXME: Make this properly reactive! */
   title: computed(() => title.value ? title.value : (ja.value ? "そろばん：よみあげざんツール" : "Soroban reader")),
 })
+
+function problemEnterPressed(index: number) {
+    if (index == problems.value.length - 1) {
+        // We're on the last problem; add a new box for us to move to
+        addProblem()
+    }
+    // Focus on the next problem.
+    nextTick().then(() => {
+        const elements: NodeListOf<HTMLElement> = document.querySelectorAll('input.problem-simple')
+        elements[index+1].focus()
+    })
+}
+
+function addProblem() {
+    problems.value.push(newProblem())
+}
 
 </script>
 
@@ -87,6 +107,7 @@ useHead({
                     :kanji="kanji"
                     :selected-voice="selectedVoice"
                     :speak-by-part="speakByPart"
+                    @enter-pressed="() => problemEnterPressed(i)"
                     />
                 </td>
             </tr>

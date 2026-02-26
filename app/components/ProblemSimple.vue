@@ -13,6 +13,8 @@ const props = defineProps({
     speakByPart: Boolean,
 })
 
+const emit = defineEmits(['enterPressed'])
+
 
 const ja = computed(() => props.selectedLanguage == "ja-JP")
 
@@ -21,9 +23,7 @@ const utteranceIndex = ref(0)
 function onInputKeyUp(event: KeyboardEvent) {
     console.log(typeof event)
     if (event.key == "Enter") {
-        // fire event handler for parent to handle
-        console.log('PLACEHOLDER: Event key pressed!')
-        //onEnter()
+        emit('enterPressed')
     }
 }
 
@@ -43,7 +43,7 @@ const problemWithAnswer = computed(() => "foobydooby") // fix this
 
 <template>
     <div>
-        <input v-if="viewMode == 'edit'" v-model="problem" type="text" autocomplete="off" @keyup="onInputKeyUp" />
+        <input v-if="viewMode == 'edit'" v-model="problem" class="problem-simple" type="text" autocomplete="off" @keyup="onInputKeyUp" />
         <template v-else>
             <button v-if="speakByPart">
                 <template v-if="utteranceIndex == 0">
