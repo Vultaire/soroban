@@ -16,9 +16,11 @@ const viewMode = ref("edit") // for now...
 const problems = ref([{problem: "", showAnswer: false}])
 const allAnswersVisible = ref(false)
 
+// Due to https://github.com/nuxt/content/issues/1919 (stale but present issue), useHeadSafe won't work here.
+// However, we're not touching innerHTML or similar attributes, so I think it'll be OK in our case to use stock useHead.
 useHead({
   /* FIXME: Make this properly reactive! */
-  title: title.value ? title.value : (ja.value ? "そろばん：よみあげざんツール" : "Soroban reader"),
+  title: computed(() => title.value ? title.value : (ja.value ? "そろばん：よみあげざんツール" : "Soroban reader")),
 })
 
 </script>
