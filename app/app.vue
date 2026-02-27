@@ -14,6 +14,7 @@ const selectedVoice = ref(null)
 const viewMode = ref("edit") // for now...
 
 const allAnswersVisible = ref(false)
+const debug = ref(false)
 
 function newProblem() {
     return {problem: "", showAnswer: false}
@@ -120,6 +121,7 @@ function showAllAnswers() {
                     :selected-voice="selectedVoice"
                     :speak-by-part="speakByPart"
                     :selected-rate="ratePct"
+                    :debug="debug"
                     @enter-pressed="() => problemEnterPressed(i)"
                     />
                 </td>

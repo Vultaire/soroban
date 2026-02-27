@@ -12,6 +12,7 @@ const props = defineProps({
     },
     selectedRate: Number,
     speakByPart: Boolean,
+    debug: Boolean,
 })
 
 const emit = defineEmits(['enterPressed'])
@@ -186,7 +187,7 @@ const problemWithAnswer = computed(() => {
             </button>
             <span v-if="showAnswer">{{ problemWithAnswer }}</span>
         </template>
-        <template v-if="false">
+        <template v-if="debug">
             <!-- debug stuff -->
             <span>
                 Speech tokens: {{ JSON.stringify(speechTokens) }}
