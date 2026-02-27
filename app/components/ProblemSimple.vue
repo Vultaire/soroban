@@ -68,8 +68,8 @@ const evalTokens = computed(() => {
 
 const speechTokens = computed(() => {
     return evalTokens.value.map((token, i) => {
-        for (const key in tokenSubstitutions) {
-            let value = tokenSubstitutions[key]
+        for (const key in tokenSubstitutions.value) {
+            let value = tokenSubstitutions.value[key]
             token = token.replace(key, value)
         }
         if (i === evalTokens.value.length - 1) {
