@@ -1,25 +1,55 @@
 <script setup lang="ts">
 
-const title = ref("")  /* Will use this later */
+const route = useRoute()
 
-// let selectedLanguage: string | undefined = $state(page.url.searchParams.get('language') || 'en-US')
-const selectedLanguage = ref("en-US")
+const title = ref(route.query.title || "")  /* Will use this later */
+
+const selectedLanguage = ref(route.query.language || "en-US")
 const ja = computed(() => selectedLanguage.value == "ja-JP")
-const kanji = ref(true)
-const speakByPart = ref(true)
+
+// Strongly prefer "true" by default for these settings.
+// Only switch to false if very explicitly set to "false".
+// TO DO: have these update from the form
+const kanji = ref((route.query.kanji || "true") != "false")
+const speakByPart = ref((route.query.speakByPart || "true") != "false")
+
 const ratePct = ref(100)
 
 const selectedVoice = ref(null)
 
-const viewMode = ref("edit") // for now...
+const VIEW_MODE = {
+    edit: "edit",
+    practice: "practice"
+}
+
+const viewMode = ref(
+    route.query.viewMode == VIEW_MODE.practice ? VIEW_MODE.practice : VIEW_MODE.edit)
 
 const allAnswersVisible = ref(false)
-const debug = ref(false)
 
-function newProblem() {
-    return {problem: "", showAnswer: false}
+function newProblem(problem: string) {
+    if (!problem) {
+        problem = ""
+    }
+    return {problem: problem, showAnswer: false}
 }
-const problems = ref([newProblem()])
+
+const problemsFromParam = (
+    (route.query.problems as string) || ""
+).split(",").map(
+    (problemStr: string) => newProblem(problemStr)
+);
+
+// JS quirk: splitting an empty string gives a list with an empty string, not an empty list.
+// We actually will use this here so we'll always have at least one field;
+// there's no need for us to call addProblem to initialize the first field.
+const problems = ref(problemsFromParam)
+
+// *** Debug params ***
+// debug=true: enable debug mode
+const debug = ref(route.query.debug == "true")
+// testParam: does nothing; just used for testing query param updates.
+const testParam = ref(route.query.testParam || "")
 
 // Due to https://github.com/nuxt/content/issues/1919 (stale but present issue), useHeadSafe won't work here.
 // However, we're not touching innerHTML or similar attributes, so I think it'll be OK in our case to use stock useHead.
@@ -54,6 +84,14 @@ function clearAllProblems() {
 function showAllAnswers() {
     allAnswersVisible.value = !allAnswersVisible.value
     problems.value.forEach(problem => problem.showAnswer = allAnswersVisible.value)
+}
+
+function updateQueryParam(key: string, value: string) {
+    const newQuery = {...useRoute().query}
+    newQuery[key] = value
+    navigateTo({
+        query: newQuery
+    })
 }
 
 </script>
@@ -154,4 +192,9 @@ function showAllAnswers() {
             </template>
         </button>
     </template>
+    <p v-if="debug">
+        <hr />
+        Query param testParam: <input v-model="testParam" /><button @click="updateQueryParam('testParam', testParam)">Update route</button>
+        <p>Current route path: {{ JSON.stringify($route.query) }}</p>
+    </p>
 </template>
