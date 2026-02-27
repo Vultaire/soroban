@@ -89,10 +89,52 @@ function showAllAnswers() {
 function updateQueryParam(key: string, value: string) {
     const newQuery = {...useRoute().query}
     newQuery[key] = value
+    // console.log('navigate to:', JSON.stringify({
+    //     query: newQuery
+    // }))
     navigateTo({
         query: newQuery
     })
 }
+
+watch(title, (updated: string, _previous: string) => {
+    updateQueryParam('title', updated)
+})
+
+watch(selectedLanguage, (updated: string, _previous: string) => {
+    updateQueryParam('language', updated)
+})
+
+watch(kanji, (updated: boolean, _previous: boolean) => {
+    updateQueryParam('kanji', updated.toString())
+})
+
+watch(speakByPart, (updated: boolean, _previous: boolean) => {
+    updateQueryParam('speakByPart', updated.toString())
+})
+
+watch(viewMode, (updated: string, _previous: string) => {
+    updateQueryParam('viewMode', updated)
+})
+
+watch(
+    problems,
+    (updated, _previous) => {
+        updateQueryParam('problems', updated.map((problem) => problem.problem).join(','))
+    },
+    {deep: true}
+)
+
+// At present, this is not toggleable via the UI.
+// watch(debug, (updated: boolean, _previous: boolean) => {
+//     updateQueryParam('debug', updated.toString())
+// })
+
+// But if debug=true is set via query params, this *is* visible.
+watch(testParam, (updated: string, _previous: string) => {
+    updateQueryParam('testParam', updated.toString())
+})
+
 
 </script>
 
@@ -194,7 +236,7 @@ function updateQueryParam(key: string, value: string) {
     </template>
     <p v-if="debug">
         <hr />
-        Query param testParam: <input v-model="testParam" /><button @click="updateQueryParam('testParam', testParam)">Update route</button>
+        Query param testParam: <input v-model="testParam" />
         <p>Current route path: {{ JSON.stringify($route.query) }}</p>
     </p>
 </template>
