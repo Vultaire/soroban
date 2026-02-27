@@ -119,6 +119,7 @@ function showAllAnswers() {
                     :kanji="kanji"
                     :selected-voice="selectedVoice"
                     :speak-by-part="speakByPart"
+                    :selected-rate="ratePct"
                     @enter-pressed="() => problemEnterPressed(i)"
                     />
                 </td>

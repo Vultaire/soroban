@@ -10,6 +10,7 @@ const props = defineProps({
     selectedVoice: {
         type: [SpeechSynthesisVoice, null],
     },
+    selectedRate: Number,
     speakByPart: Boolean,
 })
 
@@ -71,7 +72,7 @@ const speechTokens = computed(() => {
             token = token.replace(key, value)
         }
         if (i === evalTokens.value.length - 1) {
-            const lastTokenAddition = ja ? ' は' : ' is'
+            const lastTokenAddition = ja.value ? ' は' : ' is'
             token += lastTokenAddition
         }
         return token
@@ -80,7 +81,6 @@ const speechTokens = computed(() => {
 
 
 function onInputKeyUp(event: KeyboardEvent) {
-    console.log(typeof event)
     if (event.key == "Enter") {
         emit('enterPressed')
     }
@@ -100,7 +100,7 @@ function onListenClicked() {
 
     // For beginners I suspect inserting the comma here should be helpful; it adds just a tiny bit of pause.
     // Maybe not everyone will like it, but for now, let's do it.
-    let fullPhrase = speechTokens.join(", ")
+    let fullPhrase = speechTokens.value.join(", ")
     speak(fullPhrase)
 }
 
@@ -110,8 +110,18 @@ function onListenIncrementalClicked() {
         return
     }
 
-    speak(speechTokens[utteranceIndex])
-    utteranceIndex = (utteranceIndex + 1) % speechTokens.length
+    speak(speechTokens.value[utteranceIndex.value])
+    utteranceIndex.value = (utteranceIndex.value + 1) % speechTokens.value.length || 0
+}
+
+function speak(phrase: string) {
+    if (props.selectedVoice) {
+        const utterance = new SpeechSynthesisUtterance(phrase)
+        utterance.lang = props.selectedLanguage ?? "en-US"
+        utterance.rate = props.selectedRate / 100
+        utterance.voice = props.selectedVoice
+        window.speechSynthesis.speak(utterance)
+    }
 }
 
 function sanitizeProblem(): string {
@@ -179,7 +189,7 @@ const problemWithAnswer = computed(() => {
         <template v-if="false">
             <!-- debug stuff -->
             <span>
-                Speech tokens: {JSON.stringify(speechTokens)}
+                Speech tokens: {{ JSON.stringify(speechTokens) }}
             </span>
         </template>
     </div>
